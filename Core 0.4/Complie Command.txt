@@ -1,0 +1,2 @@
+
+pyinstaller proj.py --onefile --noconsole --hidden-import Qt.py --hidden-import qtwidgets --hidden-import sys --hidden-import PyQtWebEngine --hidden-import jsons --hidden-import PyQt5
