@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Search</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 36px;
+            color: #000;
+            font-weight: bold;
+        }
+        .search-box {
+            margin-top: 20px;
+            position: relative;
+        }
+        .search-input {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .search-button {
+            padding: 10px 20px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .recent-searches {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            display: none;
+        }
+        .recent-search-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .recent-search-item:hover {
+            background-color: #f9f9f9;
+        }
+        .delete-icon {
+            float: right;
+            color: red;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Core</div>
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+            <button id="searchButton" class="search-button">Search</button>
+            <div class="recent-searches" id="recentSearches"></div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const recentSearches = document.getElementById('recentSearches');
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+
+        searchButton.addEventListener('click', function() {
+            search();
+        });
+
+        function search() {
+            let searchTerm = searchInput.value.trim();
+            if (searchTerm !== '') {
+                saveRecentSearch(searchTerm);
+                window.location.href = 'https://www.google.com/search?q=' + encodeURI(searchTerm);
+            }
+        }
+
+        searchInput.addEventListener('focus', function() {
+            showRecentSearches();
+        });
+
+        function saveRecentSearch(searchTerm) {
+            let searches = localStorage.getItem('recentSearches') ? JSON.parse(localStorage.getItem('recentSearches')) : [];
+            
+            if (!searches.includes(searchTerm)) {
+                searches.unshift(searchTerm);
+                localStorage.setItem('recentSearches', JSON.stringify(searches));
+                showRecentSearches();
+            }
+        }
+
+        function showRecentSearches() {
+            recentSearches.innerHTML = '';
+            let searches = localStorage.getItem('recentSearches') ? JSON.parse(localStorage.getItem('recentSearches')) : [];
+
+            searches.forEach(searchTerm => {
+                const searchItem = document.createElement('div');
+                searchItem.classList.add('recent-search-item');
+                searchItem.textContent = searchTerm;
+
+                const deleteIcon = document.createElement('span');
+                deleteIcon.classList.add('delete-icon');
+                deleteIcon.textContent = '❌';
+                deleteIcon.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent the click event from bubbling up to the parent element
+                    searches = searches.filter(item => item !== searchTerm);
+                    localStorage.setItem('recentSearches', JSON.stringify(searches));
+                    showRecentSearches();
+                });
+
+                searchItem.appendChild(deleteIcon);
+                recentSearches.appendChild(searchItem);
+
+                searchItem.addEventListener('click', function() {
+                    window.location.href = 'https://www.google.com/search?q=' + encodeURI(searchTerm);
+                });
+            });
+
+            recentSearches.style.display = searches.length > 0 ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
